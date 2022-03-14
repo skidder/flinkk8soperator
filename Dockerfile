@@ -4,13 +4,13 @@ RUN apk add git openssh-client make curl bash
 COPY boilerplate/lyft/golang_test_targets/dep_install.sh /go/src/github.com/lyft/flinkk8soperator/
 
 # COPY only the dep files for efficient caching
-COPY Gopkg.* /go/src/github.com/lyft/flinkk8soperator/
+COPY go.* /go/src/github.com/lyft/flinkk8soperator/
 WORKDIR /go/src/github.com/lyft/flinkk8soperator
 
 # Pull dependencies
 RUN : \
-  && sh dep_install.sh \
-  && dep ensure -vendor-only
+  && go mod tidy \
+  && go mod vendor
 
 # COPY the rest of the source code
 COPY . /go/src/github.com/lyft/flinkk8soperator/

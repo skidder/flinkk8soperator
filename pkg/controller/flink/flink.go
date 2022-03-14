@@ -312,20 +312,29 @@ func (f *Controller) GetSavepointStatus(ctx context.Context, application *v1beta
 }
 
 func (f *Controller) IsClusterReady(ctx context.Context, application *v1beta1.FlinkApplication) (bool, error) {
+	logger.Infof(ctx, "Checking whether cluster is ready")
 	deployments, err := f.GetCurrentDeploymentsForApp(ctx, application)
-	if deployments == nil || err != nil {
+	if deployments == nil {
+		logger.Errorf(ctx, "Deployments were nil")
+		return false, err
+	}
+	if err != nil {
+		logger.Errorf(ctx, "Error checking for cluster readiness: %v", err)
 		return false, err
 	}
 
 	// TODO: Find if any events can be populated, that are useful to users
 	if deployments.Jobmanager.Status.AvailableReplicas == 0 {
+		logger.Errorf(ctx, "Job manager has not available replicas")
 		return false, nil
 	}
 
 	if deployments.Taskmanager.Status.AvailableReplicas < *deployments.Taskmanager.Spec.Replicas {
+		logger.Errorf(ctx, "Task manager has not available replicas")
 		return false, nil
 	}
 
+	logger.Info(ctx, "Cluster is ready!")
 	return true, nil
 }
 
@@ -387,15 +396,22 @@ func (f *Controller) GetCurrentDeploymentsForApp(ctx context.Context, applicatio
 }
 
 func (f *Controller) GetDeploymentsForHash(ctx context.Context, application *v1beta1.FlinkApplication, hash string) (*common.FlinkDeployment, error) {
+	logger.Infof(ctx, "Deployment name: %s", application.Name)
 	labels := k8.GetAppLabel(application.Name)
 	labels[FlinkAppHash] = hash
 
 	deployments, err := f.k8Cluster.GetDeploymentsWithLabel(ctx, application.Namespace, labels)
 	if err != nil {
+		logger.Errorf(ctx, "Error getting deployments with label: %v", err)
 		return nil, err
 	}
 
 	cur := listToFlinkDeployment(deployments.Items, hash)
+	if cur != nil {
+		logger.Infof(ctx, "Flink deployment jobmanager=%s taskmanager=%s", cur.Jobmanager.Name, cur.Taskmanager.Name)
+	} else {
+		logger.Warnf(ctx, "Unable to find any matching deployments")
+	}
 
 	return cur, nil
 }

@@ -123,7 +123,9 @@ func (s *FlinkStateMachine) shouldRollback(ctx context.Context, application *v1b
 
 func (s *FlinkStateMachine) Handle(ctx context.Context, application *v1beta1.FlinkApplication) error {
 	currentPhase := application.Status.Phase
+	logger.Infof(ctx, "Current application phase in Handle: %s", currentPhase)
 	if _, ok := s.metrics.stateMachineHandlePhaseMap[currentPhase]; !ok {
+		logger.Errorf(ctx, "Invalid state for application: %s", currentPhase)
 		errMsg := fmt.Sprintf("Invalid state %s for the application", currentPhase)
 		return errors.New(errMsg)
 	}
@@ -135,13 +137,16 @@ func (s *FlinkStateMachine) Handle(ctx context.Context, application *v1beta1.Fli
 
 	// Update k8s object
 	if updateStatus {
+		logger.Errorf(ctx, "Updating state for application: %s", application.Status.Phase)
 		now := v1.NewTime(s.clock.Now())
 		application.Status.LastUpdatedAt = &now
 		updateAppErr := s.k8Cluster.UpdateStatus(ctx, application)
 		if updateAppErr != nil {
+			logger.Errorf(ctx, "Error updating application status: %v", updateAppErr)
 			s.metrics.errorCounterPhaseMap[currentPhase].Inc(ctx)
 			return updateAppErr
 		}
+		logger.Errorf(ctx, "Finished updating state for application: %s", application.Status.Phase)
 	}
 	if err != nil {
 		s.metrics.errorCounterPhaseMap[currentPhase].Inc(ctx)
@@ -169,6 +174,7 @@ func (s *FlinkStateMachine) handle(ctx context.Context, application *v1beta1.Fli
 		if !v1beta1.IsRunningPhase(application.Status.Phase) {
 			logger.Infof(ctx, "Handling state for application")
 		}
+		logger.Infof(ctx, "Current phase: %v", application.Status.Phase)
 		switch application.Status.Phase {
 		case v1beta1.FlinkApplicationNew, v1beta1.FlinkApplicationUpdating:
 			// Currently just transitions to the next state
@@ -421,8 +427,10 @@ func (s *FlinkStateMachine) handleClusterStarting(ctx context.Context, applicati
 	}
 
 	// Wait for all to be running
+	logger.Infof(ctx, "Waiting for cluster to be running")
 	clusterReady, err := s.flinkController.IsClusterReady(ctx, application)
 	if err != nil || !clusterReady {
+		logger.Infof(ctx, "Cluster not ready, err=%v clusterReady=%v", err, clusterReady)
 		return statusUnchanged, err
 	}
 

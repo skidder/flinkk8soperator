@@ -3,6 +3,7 @@ package flinkapplication
 import (
 	"context"
 
+	"github.com/kr/pretty"
 	"github.com/lyft/flytestdlib/promutils"
 	"github.com/lyft/flytestdlib/promutils/labeled"
 
@@ -56,13 +57,17 @@ func newReconcilerMetrics(scope promutils.Scope) *reconcilerMetrics {
 }
 
 func (r *ReconcileFlinkApplication) getResource(ctx context.Context, key types.NamespacedName, obj runtime.Object) error {
+	logger.Infof(ctx, "Querying cache for namespaced key=%s", key)
 	err := r.cache.Get(ctx, key, obj)
 	if err != nil && k8.IsK8sObjectDoesNotExist(err) {
 		r.metrics.cacheMiss.Inc(ctx)
+		logger.Infof(ctx, "Cache miss for namespaced key=%s", key)
 		return r.client.Get(ctx, key, obj)
 	}
 	if err == nil {
+		logger.Infof(ctx, "Cache hit for namespaced key=%s", key)
 		r.metrics.cacheHit.Inc(ctx)
+		pretty.Print(obj)
 	}
 	return err
 }

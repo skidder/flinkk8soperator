@@ -632,7 +632,7 @@
   version = "v2.2.2"
 
 [[projects]]
-  digest = "1:f123907ebd19568a24bc7d1db2dd9129d2fb5daed201c313e896882296ad05ec"
+  digest = "1:e21d759b988f1788cf6f70b6f6de1fb451171abbef2fbcfa9a836e7ae743db48"
   name = "k8s.io/api"
   packages = [
     "admission/v1beta1",
@@ -674,11 +674,11 @@
     "storage/v1beta1",
   ]
   pruneopts = ""
-  revision = "6e4e0e4f393bf5e8bbff570acd13217aa5a770cd"
-  version = "kubernetes-1.14.1"
+  revision = "159aefb8556bb8ed4be7631461d1558546d304db"
+  version = "kubernetes-1.14.10"
 
 [[projects]]
-  digest = "1:a108528de06570dafc607e3f4b25197e5add10212b15d800918caff61963a90e"
+  digest = "1:a8746cf46ee22ee16c4e9ed3ca1469deeee7afc885b67b5ad8d8eecb29b61603"
   name = "k8s.io/apiextensions-apiserver"
   packages = [
     "pkg/apis/apiextensions",
@@ -688,11 +688,11 @@
     "pkg/client/clientset/clientset/typed/apiextensions/v1beta1",
   ]
   pruneopts = ""
-  revision = "727a075fdec8319bf095330e344b3ccc668abc73"
-  version = "kubernetes-1.14.1"
+  revision = "8fe0c124fb40d7e3ec15344971bbe870d01db388"
+  version = "kubernetes-1.14.10"
 
 [[projects]]
-  digest = "1:a802c91b189a31200cfb66744441fe62dac961ec7c5c58c47716570de7da195c"
+  digest = "1:7dee013bc9e0fba315f9168bffeef25a1685eaa5e6e0b6d95b1aad9fd32e0356"
   name = "k8s.io/apimachinery"
   packages = [
     "pkg/api/equality",
@@ -742,11 +742,11 @@
     "third_party/forked/golang/reflect",
   ]
   pruneopts = ""
-  revision = "6a84e37a896db9780c75367af8d2ed2bb944022e"
-  version = "kubernetes-1.14.1"
+  revision = "c5d2f014d689246b84637774317fa0288dd3129b"
+  version = "kubernetes-1.14.10"
 
 [[projects]]
-  digest = "1:a31a3473e1c9d225a4341c117866646399d71e2a9f87dcf7dfa22585656cffd8"
+  digest = "1:2495b7e4b0d4111ffb0f0921273cd2e9b24650e4ba88d1b5efcf244866ced7ac"
   name = "k8s.io/client-go"
   packages = [
     "discovery",
@@ -822,8 +822,8 @@
     "util/workqueue",
   ]
   pruneopts = ""
-  revision = "1a26190bd76a9017e289958b9fba936430aa3704"
-  version = "kubernetes-1.14.1"
+  revision = "8e412805300829bc5a39e63eaccfc8a3355e4797"
+  version = "kubernetes-1.14.10"
 
 [[projects]]
   digest = "1:742ce70d2c6de0f02b5331a25d4d549f55de6b214af22044455fd6e6b451cad9"
@@ -855,7 +855,7 @@
   ]
   pruneopts = ""
   revision = "50b561225d70b3eb79a1faafd3dfe7b1a62cbe73"
-  version = "kubernetes-1.14.1"
+  version = "kubernetes-1.14.10"
 
 [[projects]]
   branch = "master"
@@ -954,6 +954,7 @@
     "github.com/go-resty/resty",
     "github.com/hashicorp/go-version",
     "github.com/jarcoal/httpmock",
+    "github.com/kr/pretty",
     "github.com/kubernetes-sigs/controller-runtime/pkg/runtime/signals",
     "github.com/lyft/flytestdlib/config",
     "github.com/lyft/flytestdlib/config/viper",

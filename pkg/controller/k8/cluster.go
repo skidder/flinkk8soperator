@@ -5,6 +5,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/errors"
 
+	"github.com/kr/pretty"
 	"github.com/lyft/flinkk8soperator/pkg/controller/config"
 	"github.com/lyft/flytestdlib/logger"
 	"github.com/lyft/flytestdlib/promutils"
@@ -208,6 +209,8 @@ func (k *Cluster) UpdateK8Object(ctx context.Context, object runtime.Object) err
 
 func (k *Cluster) UpdateStatus(ctx context.Context, object runtime.Object) error {
 	objectCopy := object.DeepCopyObject()
+	logger.Infof(ctx, "UpdateStatus: Object group=%s kind=%s version=%s", objectCopy.GetObjectKind().GroupVersionKind().Group, objectCopy.GetObjectKind().GroupVersionKind().Kind, objectCopy.GetObjectKind().GroupVersionKind().Version)
+	pretty.Print(object)
 	err := k.client.Status().Update(ctx, objectCopy)
 	if err != nil {
 		if errors.IsInvalid(err) {
