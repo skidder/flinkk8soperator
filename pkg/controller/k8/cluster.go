@@ -13,6 +13,7 @@ import (
 	coreV1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/serializer/json"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -197,7 +198,8 @@ func (k *Cluster) UpdateK8Object(ctx context.Context, object runtime.Object) err
 			logger.Warnf(ctx, "Conflict while updating object")
 			k.metrics.updateConflicts.Inc(ctx)
 		} else {
-			logger.Errorf(ctx, "K8s object update failed %v", err)
+			printObject(ctx, object)
+			logger.Errorf(ctx, "UpdateK8Object: K8s object update failed %v", err)
 			k.metrics.updateFailure.Inc(ctx)
 		}
 		return err
@@ -227,7 +229,8 @@ func (k *Cluster) UpdateStatus(ctx context.Context, object runtime.Object) error
 			k.metrics.updateInvalidVersion.Inc(ctx)
 			updateErr := k.client.Update(ctx, object)
 			if updateErr != nil {
-				logger.Errorf(ctx, "K8s object update failed %v", updateErr)
+				printObject(ctx, object)
+				logger.Errorf(ctx, "UpdateStatus (invalid): K8s object update failed %v", updateErr)
 				k.metrics.updateFailure.Inc(ctx)
 				return updateErr
 			}
@@ -236,7 +239,8 @@ func (k *Cluster) UpdateStatus(ctx context.Context, object runtime.Object) error
 			logger.Warnf(ctx, "Conflict while updating status")
 			k.metrics.updateConflicts.Inc(ctx)
 		} else {
-			logger.Errorf(ctx, "K8s object update failed %v", err)
+			printObject(ctx, object)
+			logger.Errorf(ctx, "UpdateStatus: K8s object update failed %v", err)
 			k.metrics.updateFailure.Inc(ctx)
 		}
 		return err
@@ -255,4 +259,19 @@ func (k *Cluster) DeleteK8Object(ctx context.Context, object runtime.Object) err
 	}
 	k.metrics.deleteSuccess.Inc(ctx)
 	return nil
+}
+
+func printObject(ctx context.Context, obj runtime.Object) {
+	// Create a serializer that can convert runtime.Object into JSON
+	serializer := json.NewSerializer(json.DefaultMetaFactory, nil, nil, true)
+
+	// Serialize the object into a string
+	str, err := runtime.Encode(serializer, obj)
+	if err != nil {
+		logger.Errorf(ctx, "Error encoding object: %v", err)
+		return
+	}
+
+	// Print the string
+	logger.Infof(ctx, "Object to be updated: %v", string(str))
 }
